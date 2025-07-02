@@ -1,3 +1,6 @@
+import FeaturedUniverses from "../components/FeaturedUniverses";
+import LeaderBoardTable from "../components/LeaderBoardTable";
+
 const Home = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-500 to-green-50 flex flex-col items-center py-10 px-4">
@@ -34,7 +37,7 @@ const Home = () => {
       </div>
 
       {/* Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-4xl">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-4xl mb-8">
         <div className="bg-white shadow rounded-md p-6 flex flex-col">
           <h2 className="text-xl font-semibold mb-2 text-blue-900">
             Typing Test
@@ -58,6 +61,9 @@ const Home = () => {
           </button>
         </div>
       </div>
+
+      <FeaturedUniverses />
+      <LeaderBoardTable />
     </div>
   );
 };
