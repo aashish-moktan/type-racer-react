@@ -20,6 +20,19 @@ export default function TypingArea() {
   const inputWords = input.trim().split(/\s+/);
 
   useEffect(() => {
+    fetch("http://localhost:3000/passage")
+      .then(async (response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        const data = await response.json();
+        console.log({ data });
+        setPassage(data.text);
+      })
+      .catch((err) => {
+        console.log("Error :: ", err);
+      });
+
     socket.on("connect", () => {
       setMyId(socket.id);
       socket.emit("joinRace", "race1");
