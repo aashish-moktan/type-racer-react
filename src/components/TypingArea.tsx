@@ -20,70 +20,61 @@ export default function TypingArea() {
   const inputWords = input.trim().split(/\s+/);
 
   useEffect(() => {
-    fetch("http://localhost:3000/passage")
-      .then(async (response) => {
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-        const data = await response.json();
-        console.log({ data });
-        setPassage(data.text);
-      })
-      .catch((err) => {
-        console.log("Error :: ", err);
-      });
-
-    socket.on("connect", () => {
-      setMyId(socket.id);
+    const handleConnect = () => {
+      console.log("Socket id :: ", socket.id);
+      setMyId(socket?.id);
       socket.emit("joinRace", "race1");
-    });
+    };
 
-    socket.on(
-      "raceData",
-      ({
-        passage,
-        players: existingPlayers,
-      }: {
-        passage: string;
-        players: Player[];
-      }) => {
-        setPassage(passage);
-        const map: Record<string, Player> = {};
-        existingPlayers.forEach((p) => (map[p.id] = p));
-        setPlayers(map);
-        setStartTime(Date.now());
-        setInput("");
-        setFinished(false);
-      }
-    );
+    const handleRaceData = ({ passage, players: existingPlayers }: any) => {
+      console.log("Race joined !!!");
+      console.log({ passage });
 
-    socket.on("playerJoined", ({ playerId }: { playerId: string }) => {
+      setPassage(passage);
+      const map: Record<string, Player> = {};
+      existingPlayers.forEach((p) => (map[p.id] = p));
+      setPlayers(map);
+      setStartTime(Date.now());
+      setInput("");
+      setFinished(false);
+    };
+
+    const handlePlayerJoined = ({ playerId }: any) => {
       setPlayers((prev) => ({
         ...prev,
         [playerId]: { id: playerId, progress: 0 },
       }));
-    });
+    };
 
-    socket.on(
-      "playerProgress",
-      ({ playerId, progress }: { playerId: string; progress: number }) => {
-        setPlayers((prev) => ({
-          ...prev,
-          [playerId]: { id: playerId, progress },
-        }));
-      }
-    );
+    const handlePlayerProgress = ({ playerId, progress }: any) => {
+      setPlayers((prev) => ({
+        ...prev,
+        [playerId]: { id: playerId, progress },
+      }));
+    };
 
-    socket.on("playerLeft", ({ playerId }: { playerId: string }) => {
+    const handlePlayerLeft = ({ playerId }: any) => {
       setPlayers((prev) => {
         const copy = { ...prev };
         delete copy[playerId];
         return copy;
       });
-    });
+    };
+
+    socket.on("connect", handleConnect);
+    socket.on("raceData", handleRaceData);
+    socket.on("playerJoined", handlePlayerJoined);
+    socket.on("playerProgress", handlePlayerProgress);
+    socket.on("playerLeft", handlePlayerLeft);
 
     return () => {
-      socket.disconnect();
+      // socket.disconnect();
+
+      socket.off("connect", handleConnect);
+      socket.off("raceData", handleRaceData);
+      socket.off("playerJoined", handlePlayerProgress);
+      socket.off("playerProgress", handlePlayerProgress);
+      socket.off("playerLeft", handlePlayerLeft);
     };
   }, []);
 
@@ -167,7 +158,7 @@ export default function TypingArea() {
                 className="absolute top-1/2 transform -translate-y-1/2 transition-all duration-300"
                 style={{ left: `calc(${player.progress * 100}% - 16px)` }}
               >
-                <span className="text-2xl">🚗</span>
+                <span className="text-3xl">🚗</span>
               </div>
 
               {/* Flag */}
